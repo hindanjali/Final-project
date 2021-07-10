@@ -1,0 +1,61 @@
+
+library("e1071", lib.loc="~/R/win-library/3.3")
+library("dplyr", lib.loc="~/R/win-library/3.3")
+library("factoextra", lib.loc="~/R/win-library/3.3")
+library("ggpubr", lib.loc="~/R/win-library/3.3")
+library("gsubfn", lib.loc="~/R/win-library/3.3")
+library("httpuv", lib.loc="~/R/win-library/3.3")
+library("httr", lib.loc="~/R/win-library/3.3")
+library("kernlab", lib.loc="~/R/win-library/3.3")
+library("NLP", lib.loc="~/R/win-library/3.3")
+library("plyr", lib.loc="~/R/win-library/3.3")
+library("kernlab", lib.loc="~/R/win-library/3.3")
+library("NLP", lib.loc="~/R/win-library/3.3")
+library("plyr", lib.loc="~/R/win-library/3.3")
+library("ROAuth", lib.loc="~/R/win-library/3.3")
+library("streamR", lib.loc="~/R/win-library/3.3")
+library("SnowballC", lib.loc="~/R/win-library/3.3")
+library("RTextTools", lib.loc="~/R/win-library/3.3")
+library("stringi", lib.loc="~/R/win-library/3.3")
+library("stringr", lib.loc="~/R/win-library/3.3")
+library("tidytext", lib.loc="~/R/win-library/3.3")
+library("tidyr", lib.loc="~/R/win-library/3.3")
+library("tm", lib.loc="~/R/win-library/3.3")
+library("tokenizers", lib.loc="~/R/win-library/3.3")
+library("wordcloud", lib.loc="~/R/win-library/3.3")
+library("twitteR", lib.loc="~/R/win-library/3.3")
+setup_twitter_oauth("NELa2gp1To7uPoRbHICSUI4AH","Y5hQpF8YvNpVHvT8zgAC5mh9dtCl9bh6bqiidVITFXSpvgCgbc","3028634972-GIYOrKuby26EbtMMADmR6Vmz6US6VX1G9ovM56v","1dXbKkQpKmkzSLg4qDQGNyE2WVwSmtYUBF2aTXDo4VHRH")
+rupalitweets=searchTwitter("#indianrailway",n=3000,lang = "en")
+tweets_mining=strip_retweets(rupalitweets,strip_manual=TRUE,strip_mt=TRUE)
+tweets_mining_sentiment  <- tweets_mining
+tweets_mining_sentiment = sapply(tweets_mining_sentiment, function(t) t$getText() )
+scores = score.sentiment(tweets_mining_sentiment, posText,negText , .progress='text')
+scores$tweets = factor(tweets_mining_sentiment, length(tweets_mining_sentiment)))
+scores$tweets = factor(tweets_mining_sentiment, length(tweets_mining_sentiment))
+scores$positive <- as.numeric(scores$score >0)
+scores$negative <- as.numeric(scores$score >0)
+scores$neutral <- as.numeric(scores$score==0)
+scores$polarity <- ifelse(scores$score >0,"positive",ifelse(scores$score < 0,"negative",ifelse(scores$score==0,"Neutral",0)))
+scores
+scores_dataframe=as.data.frame(scores)
+filteredscore=filter(scores_dataframe,scores_dataframe$polarity<0)
+filteredscore
+filteredscore=filter(scores_dataframe,scores_dataframe$polarity=="negative")
+filteredscore
+preprocessed_tweets=filteredscore$text
+preprocessed_tweets
+readtraindata <- read.csv("newtrainset.csv",header = TRUE)
+datamatrix <- create_matrix(readtraindata$complaints,removeNumbers = TRUE,stemWords = TRUE,weighting = tm::weightTfIdf)
+container <- create_container(datamatrix, readtraindata$class, trainSize=1:161, virgin=FALSE)
+model <- train_model(container, "SVM", kernel="linear", cost=1,cross=10)
+#warning()
+#warning(model)
+predMatrix <- create_matrix(preprocessed_tweets, originalMatrix=datamatrix,removeNumbers = TRUE,stemWords = TRUE)
+trace(create_matrix,edit = TRUE)
+predMatrix <- create_matrix(preprocessed_tweets, originalMatrix=datamatrix,removeNumbers = TRUE,stemWords = TRUE)
+predSize = length(preprocessed_tweets);
+predictionContainer <- create_container(predMatrix, labels=rep(0,predSize), testSize=1:predSize, virgin=FALSE)
+results <- classify_model(predictionContainer, model)
+results
+
+
